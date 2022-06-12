@@ -1,10 +1,10 @@
 ### Colors
-red="\e[31m"
-green="\e[32m"
-blue="\e[34m"
-white="\e[37m"
+red="\[\e[31m\]"
+green="\[\e[32m\]"
+blue="\[\e[34m\]"
+white="\[\e[97m\]"
 
-reset="\e[0m"
+reset="\[\e[0m\]"
 
 ###
 
