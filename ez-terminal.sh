@@ -8,6 +8,24 @@ reset="\[\e[0m\]"
 
 ###
 
+function light_color() {
+    local color=$1
+    echo "${color/[3/[9}"
+}
+
+function dark_color() {
+    local color=$1
+    echo "${color/m/;4m}"
+}
+
+function bright_color() {
+    local color=$1
+    color="${color/m/;1m}"
+    light_color $color
+}
+
+###
+
 user_color() {
     local user_color=${green}
 
@@ -24,7 +42,8 @@ user() {
 
 prompt_char() {
     local user_color=$(user_color)
-    echo "${user_color}\$${reset}"
+    local prompt_color=$(bright_color $user_color)
+    echo "${prompt_color}\$${reset}"
 }
 
 host() {
