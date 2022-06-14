@@ -43,7 +43,7 @@ user() {
 prompt_char() {
     local user_color=$(user_color)
     local prompt_color=$(bright_color $user_color)
-    echo "${prompt_color}\$${reset}"
+    echo "${prompt_color}\\\$${reset}"
 }
 
 host() {
@@ -56,6 +56,10 @@ current_dir() {
     echo "${current_dir_color}\w${reset}"
 }
 
+prompt() {
+    PS1="${reset}\n$(user)@$(host) $(current_dir)\n$(prompt_char) "
+}
+
 ###
 
-PS1="${reset}\n$(user)@$(host) $(current_dir)\n$(prompt_char) "
+PROMPT_COMMAND=prompt
