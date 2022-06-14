@@ -15,7 +15,7 @@ function light_color() {
 
 function dark_color() {
     local color=$1
-    echo "${color/m/;4m}"
+    echo "${color/m/;2m}"
 }
 
 function bright_color() {
@@ -58,4 +58,4 @@ current_dir() {
 
 ###
 
-PS1="\n$(user)@$(host) $(current_dir)\n$(prompt_char)${reset} "
+PS1="${reset}\n$(user)@$(host) $(current_dir)\n$(prompt_char) "
