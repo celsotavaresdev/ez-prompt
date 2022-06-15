@@ -8,20 +8,26 @@ reset="\[\e[0m\]"
 
 ###
 
-function light_color() {
+light_color() {
     local color=$1
     echo "${color/[3/[9}"
 }
 
-function dark_color() {
+dark_color() {
     local color=$1
     echo "${color/m/;2m}"
 }
 
-function bright_color() {
+bright_color() {
     local color=$1
     color="${color/m/;1m}"
     light_color $color
+}
+
+find_lscolors() {
+    local string=$1
+    local result=$(dircolors -p | grep -oP "^.?$string \K([0-9]|[\;])+")
+    echo "\[\e[${result}m\]"
 }
 
 ###
@@ -52,7 +58,7 @@ host() {
 }
 
 current_dir() {
-    local current_dir_color=${blue}
+    local current_dir_color=$(find_lscolors 'DIR')
     echo "${current_dir_color}\w${reset}"
 }
 
