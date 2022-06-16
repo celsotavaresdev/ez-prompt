@@ -58,7 +58,14 @@ host() {
 }
 
 current_dir() {
-    local current_dir_color=$(find_lscolors 'DIR')
+    local current_dir_color=
+
+    if [ -h $(pwd) ]; then
+        current_dir_color=$(find_lscolors 'LINK')
+    else
+        current_dir_color=$(find_lscolors 'DIR')
+    fi
+
     echo "${current_dir_color}\w${reset}"
 }
 
