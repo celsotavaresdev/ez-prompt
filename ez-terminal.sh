@@ -2,6 +2,7 @@
 red="\[\e[31m\]"
 green="\[\e[32m\]"
 blue="\[\e[34m\]"
+gray="\[\e[37m\]"
 white="\[\e[97m\]"
 
 reset="\[\e[0m\]"
@@ -69,8 +70,20 @@ current_dir() {
     echo "${current_dir_color}\w${reset}"
 }
 
+exit_status() {
+    local exit=
+    local exit_color=$(dark_color $gray)
+
+    if [[ exit_code -ne 0 ]]; then
+        exit="${exit_color}[exit ${exit_code}]\n"
+    fi
+
+    echo "${exit}${reset}"
+}
+
 prompt() {
-    PS1="${reset}\n$(user)@$(host) $(current_dir)\n$(prompt_char) "
+    exit_code=$?
+    PS1="$(exit_status)\n$(user)@$(host) $(current_dir)\n$(prompt_char) "
 }
 
 ###
