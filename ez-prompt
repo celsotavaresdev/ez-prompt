@@ -79,21 +79,26 @@ current_dir() {
 }
 
 exit_status() {
+    _exit_status_code=$?
     _exit_status_value=
+    _exit_status_line_feed=
     _exit_status_color=$(dark_color "$FG_GRAY")
 
-    if [ "$exit_code" -ne 0 ]; then
-        _exit_status_value="${_exit_status_color}[exit ${exit_code}]\n"
+    if [ "$_exit_status_code" -ne 0 ]; then
+        _exit_status_value="${_exit_status_color}[exit ${_exit_status_code}]"
+        _exit_status_line_feed="\n\n"
+    else
+        _exit_status_line_feed="\n"
     fi
 
-    printf '%s%s' "$_exit_status_value" "$RESET"
+    printf '%s%s%s' "$_exit_status_value" "$_exit_status_line_feed" "$RESET"
 }
 
-prompt() {
-    exit_code=$?
-    PS1="$(exit_status)\n$(user)@$(host) $(current_dir)\n$(prompt_symbol) "
+
+set_prompt() {
+    PS1="$(exit_status)$(user)@$(host) $(current_dir)\n$(prompt_symbol) "
 }
 
 ###
 
-PROMPT_COMMAND=prompt
+PROMPT_COMMAND=set_prompt
