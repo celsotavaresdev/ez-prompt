@@ -1,15 +1,18 @@
 #!/usr/bin/env sh
 
 ### Colors
-red='\[\e[31m\]'
-green='\[\e[32m\]'
-blue='\[\e[34m\]'
-gray='\[\e[37m\]'
-white='\[\e[97m\]'
-
-reset='\[\e[0m\]'
+FG_RED='\[\e[31m\]'
+FG_GREEN='\[\e[32m\]'
+FG_BLUE='\[\e[34m\]'
+FG_GRAY='\[\e[37m\]'
+FG_WHITE='\[\e[97m\]'
+RESET='\[\e[0m\]'
 
 ###
+
+is_root() {
+    [ "$(id -u)" -eq 0 ]
+}
 
 light_color() {
     _light_color_value=$1
@@ -35,29 +38,32 @@ find_lscolors() {
 
 ###
 
-user_color() {
-    _user_color_value=${green}
+primary_color() {
+    _primary_color_value=
 
-    if [ "$USER" = 'root' ]; then
-        _user_color_value=${red}
+    if is_root; then
+        _primary_color_value=$FG_RED
+    else
+        _primary_color_value=$FG_GREEN
     fi
-    printf '%s' "$_user_color_value"
+
+    printf '%s' "$_primary_color_value"
 }
 
 user() {
-    _user_color=$(user_color)
-    printf '%s\\u%s' "$_user_color" "$reset"
+    _user_primary_color=$(primary_color)
+    printf '%s\\u%s' "$_user_primary_color" "$RESET"
 }
 
-prompt_char() {
-    _user_color=$(user_color)
-    _prompt_char_color=$(bright_color "$_user_color")
-    printf '%s\\$%s' "$_prompt_char_color" "$reset"
+prompt_symbol() {
+    _prompt_symbol_value="\\$"
+    _prompt_symbol_color=$(bright_color "$(primary_color)")
+    printf '%s%s%s' "$_prompt_symbol_color" "$_prompt_symbol_value" "$RESET"
 }
 
 host() {
-    _host_color=${white}
-    printf '%s\\h%s' "$_host_color" "$reset"
+    _host_color=${FG_WHITE}
+    printf '%s\\h%s' "$_host_color" "$RESET"
 }
 
 current_dir() {
@@ -69,23 +75,23 @@ current_dir() {
         _current_dir_color=$(find_lscolors 'DIR')
     fi
 
-    printf '%s\\w%s' "$_current_dir_color" "$reset"
+    printf '%s\\w%s' "$_current_dir_color" "$RESET"
 }
 
 exit_status() {
     _exit_status_value=
-    _exit_status_color=$(dark_color "$gray")
+    _exit_status_color=$(dark_color "$FG_GRAY")
 
     if [ "$exit_code" -ne 0 ]; then
         _exit_status_value="${_exit_status_color}[exit ${exit_code}]\n"
     fi
 
-    printf '%s%s' "$_exit_status_value" "$reset"
+    printf '%s%s' "$_exit_status_value" "$RESET"
 }
 
 prompt() {
     exit_code=$?
-    PS1="$(exit_status)\n$(user)@$(host) $(current_dir)\n$(prompt_char) "
+    PS1="$(exit_status)\n$(user)@$(host) $(current_dir)\n$(prompt_symbol) "
 }
 
 ###
