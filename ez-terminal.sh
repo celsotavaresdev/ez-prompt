@@ -1,84 +1,86 @@
-### Colors
-red="\[\e[31m\]"
-green="\[\e[32m\]"
-blue="\[\e[34m\]"
-gray="\[\e[37m\]"
-white="\[\e[97m\]"
+#!/usr/bin/env sh
 
-reset="\[\e[0m\]"
+### Colors
+red='\[\e[31m\]'
+green='\[\e[32m\]'
+blue='\[\e[34m\]'
+gray='\[\e[37m\]'
+white='\[\e[97m\]'
+
+reset='\[\e[0m\]'
 
 ###
 
 light_color() {
-    local color=$1
-    echo "${color/[3/[9}"
+    _light_color_value=$1
+    printf '%s' "$_light_color_value" | sed 's/\[3/\[9/g'
 }
 
 dark_color() {
-    local color=$1
-    echo "${color/m/;2m}"
+    _dark_color_value=$1
+    printf '%s' "$_dark_color_value" | sed 's/m/;2m/g'
 }
 
 bright_color() {
-    local color=$1
-    color="${color/m/;1m}"
-    light_color $color
+    _bright_color_value=$1
+    _bright_color_value=$(printf '%s' "$_bright_color_value" | sed 's/m/;1m/g')
+    light_color "$_bright_color_value"
 }
 
 find_lscolors() {
-    local string=$1
-    local result=$(dircolors -p | grep -oP "^.?$string \K([0-9]|[\;])+")
-    echo "\[\e[${result}m\]"
+    _find_lscolors_string=$1
+    _find_lscolors_result=$(dircolors -p | grep -oP "^.?$_find_lscolors_string \K([0-9]|[\;])+")
+    printf '\[\e[%sm\]' "$_find_lscolors_result"
 }
 
 ###
 
 user_color() {
-    local user_color=${green}
+    _user_color_value=${green}
 
-    if [ "$USER" = "root" ]; then
-        user_color=${red}
+    if [ "$USER" = 'root' ]; then
+        _user_color_value=${red}
     fi
-    echo "${user_color}"
+    printf '%s' "$_user_color_value"
 }
 
 user() {
-    local user_color=$(user_color)
-    echo "${user_color}\u${reset}"
+    _user_color=$(user_color)
+    printf '%s\\u%s' "$_user_color" "$reset"
 }
 
 prompt_char() {
-    local user_color=$(user_color)
-    local prompt_color=$(bright_color $user_color)
-    echo "${prompt_color}\\\$${reset}"
+    _user_color=$(user_color)
+    _prompt_char_color=$(bright_color "$_user_color")
+    printf '%s\\$%s' "$_prompt_char_color" "$reset"
 }
 
 host() {
-    local host_color=${white}
-    echo "${host_color}\h${reset}"
+    _host_color=${white}
+    printf '%s\\h%s' "$_host_color" "$reset"
 }
 
 current_dir() {
-    local current_dir_color=
+    _current_dir_color=
 
-    if [ -h $(pwd) ]; then
-        current_dir_color=$(find_lscolors 'LINK')
+    if [ -h "$(pwd)" ]; then
+        _current_dir_color=$(find_lscolors 'LINK')
     else
-        current_dir_color=$(find_lscolors 'DIR')
+        _current_dir_color=$(find_lscolors 'DIR')
     fi
 
-    echo "${current_dir_color}\w${reset}"
+    printf '%s\\w%s' "$_current_dir_color" "$reset"
 }
 
 exit_status() {
-    local exit=
-    local exit_color=$(dark_color $gray)
+    _exit_status_value=
+    _exit_status_color=$(dark_color "$gray")
 
-    if [[ exit_code -ne 0 ]]; then
-        exit="${exit_color}[exit ${exit_code}]\n"
+    if [ "$exit_code" -ne 0 ]; then
+        _exit_status_value="${_exit_status_color}[exit ${exit_code}]\n"
     fi
 
-    echo "${exit}${reset}"
+    printf '%s%s' "$_exit_status_value" "$reset"
 }
 
 prompt() {
