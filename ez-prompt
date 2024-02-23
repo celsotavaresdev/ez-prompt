@@ -4,6 +4,7 @@
 # VARS
 FG_RED='\[\e[31m\]'
 FG_GREEN='\[\e[32m\]'
+FG_YELLOW='\[\e[33m\]'
 FG_PURPLE='\[\e[35m\]'
 FG_GRAY='\[\e[37m\]'
 FG_WHITE='\[\e[97m\]'
@@ -17,6 +18,10 @@ is_root() {
 
 is_container() {
     [ -f /run/.containerenv ]
+}
+
+is_ssh() {
+    [ "$(ps -o comm= -p $PPID)" = "sshd" ]
 }
 
 get_container_name() {
@@ -50,7 +55,9 @@ find_lscolors() {
 primary_color() {
     _primary_color_value=
 
-    if is_container; then
+    if is_ssh; then
+        _primary_color_value=$FG_YELLOW
+    elif is_container; then
         _primary_color_value=$FG_PURPLE
     elif is_root; then
         _primary_color_value=$FG_RED
