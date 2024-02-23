@@ -4,6 +4,7 @@
 # VARS
 FG_RED='\[\e[31m\]'
 FG_GREEN='\[\e[32m\]'
+FG_PURPLE='\[\e[35m\]'
 FG_GRAY='\[\e[37m\]'
 FG_WHITE='\[\e[97m\]'
 RESET='\[\e[0m\]'
@@ -12,6 +13,14 @@ RESET='\[\e[0m\]'
 # FUNCTIONS (UTILS)
 is_root() {
     [ "$(id -u)" -eq 0 ]
+}
+
+is_container() {
+    [ -f /run/.containerenv ]
+}
+
+get_container_name() {
+    sed -nr 's/^name="(.*)"$/\1/p' /run/.containerenv
 }
 
 light_color() {
@@ -41,7 +50,9 @@ find_lscolors() {
 primary_color() {
     _primary_color_value=
 
-    if is_root; then
+    if is_container; then
+        _primary_color_value=$FG_PURPLE
+    elif is_root; then
         _primary_color_value=$FG_RED
     else
         _primary_color_value=$FG_GREEN
@@ -56,14 +67,29 @@ user() {
 }
 
 prompt_symbol() {
-    _prompt_symbol_value="\\$"
+    _prompt_symbol_value=
     _prompt_symbol_color=$(bright_color "$(primary_color)")
+
+    if is_container; then
+        _prompt_symbol_value="⬢"
+    else
+        _prompt_symbol_value="\\$"
+    fi
+
     printf '%s%s%s' "$_prompt_symbol_color" "$_prompt_symbol_value" "$RESET"
 }
 
 host() {
+    _host_name=
     _host_color=${FG_WHITE}
-    printf '%s\\h%s' "$_host_color" "$RESET"
+
+    if is_container; then
+        _host_name=$(get_container_name)
+    else
+        _host_name="\\h"
+    fi
+
+    printf '%s%s%s' "$_host_color" "$_host_name" "$RESET"
 }
 
 current_dir() {
