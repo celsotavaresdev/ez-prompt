@@ -9,6 +9,8 @@ FG_PURPLE='\[\e[35m\]'
 FG_GRAY='\[\e[37m\]'
 FG_WHITE='\[\e[97m\]'
 RESET='\[\e[0m\]'
+DIR_TRUNCATE=3
+DIR_TRUNCATE_PREFIX='.../'
 
 # ------------------------------------------------------------------------------
 # FUNCTIONS (UTILS)
@@ -48,6 +50,39 @@ find_lscolors() {
     _find_lscolors_string=$1
     _find_lscolors_result=$(dircolors -p | grep -oP "^.?$_find_lscolors_string \K([0-9]|[\;])+")
     printf '\[\e[%sm\]' "$_find_lscolors_result"
+}
+
+dir_truncate() {
+    _dir_truncate_value=$1
+    _dir_truncate_path=$2
+    _dir_truncate_pattern=
+    _dir_truncate_slashes_only=
+    _dir_truncate_total_dirs=
+    _dir_truncate_partial=
+    _dir_truncate_result=
+
+    i=1
+    while [ "$i" -le "$_dir_truncate_value" ]; do
+        _dir_truncate_pattern="$_dir_truncate_pattern/*"
+        i=$(( i + 1 ))
+    done
+
+    _dir_truncate_partial=${_dir_truncate_path#${_dir_truncate_path%$_dir_truncate_pattern}/}
+    _dir_truncate_slashes_only=$(printf '%s' "$_dir_truncate_path" | sed 's/[^\/]//g')
+    _dir_truncate_total_dirs=${#_dir_truncate_slashes_only}
+
+    if [ "$_dir_truncate_total_dirs" -gt "$_dir_truncate_value" ] && [ "\~/$_dir_truncate_partial" != "$_dir_truncate_path" ]; then
+        _dir_truncate_result=${DIR_TRUNCATE_PREFIX}${_dir_truncate_partial}
+    else
+        _dir_truncate_result=$_dir_truncate_path
+    fi
+
+    printf '%s' "$_dir_truncate_result"
+}
+
+home_tilde() {
+    _home_tilde_path=${1:-$(pwd)}
+    printf '%s' "$_home_tilde_path" | sed "s|$HOME|~|g"
 }
 
 # ------------------------------------------------------------------------------
@@ -101,6 +136,7 @@ host() {
 
 current_dir() {
     _current_dir_color=
+    _current_dir_path=
 
     if [ -h "$(pwd)" ]; then
         _current_dir_color=$(find_lscolors 'LINK')
@@ -108,7 +144,13 @@ current_dir() {
         _current_dir_color=$(find_lscolors 'DIR')
     fi
 
-    printf '%s\\w%s' "$_current_dir_color" "$RESET"
+    if [ "$DIR_TRUNCATE" -gt 0 ]; then
+        _current_dir_path=$(dir_truncate "$DIR_TRUNCATE" "$(home_tilde "$(pwd)")")
+    else
+        _current_dir_path=$(home_tilde "$(pwd)")
+    fi
+
+    printf '%s%s%s' "$_current_dir_color" "$_current_dir_path" "$RESET"
 }
 
 exit_status() {
