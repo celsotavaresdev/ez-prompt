@@ -11,6 +11,7 @@ FG_WHITE='\[\e[97m\]'
 RESET='\[\e[0m\]'
 DIR_TRUNCATE=3
 DIR_TRUNCATE_PREFIX='.../'
+CONTAINER_ENV_FILE='/run/.containerenv'
 
 # ------------------------------------------------------------------------------
 # FUNCTIONS (UTILS)
@@ -19,7 +20,7 @@ is_root() {
 }
 
 is_container() {
-    [ -f /run/.containerenv ]
+    [ -f "$CONTAINER_ENV_FILE" ]
 }
 
 is_ssh() {
@@ -27,7 +28,7 @@ is_ssh() {
 }
 
 get_container_name() {
-    sed -nr 's/^name="(.*)"$/\1/p' /run/.containerenv
+    sed -nr 's/^name="(.*)"$/\1/p' "$CONTAINER_ENV_FILE"
 }
 
 light_color() {
