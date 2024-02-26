@@ -13,6 +13,7 @@ DIR_TRUNCATE=3
 DIR_TRUNCATE_PREFIX='.../'
 CONTAINER_ENV_FILE='/run/.containerenv'
 
+cursor_position=
 # ------------------------------------------------------------------------------
 # FUNCTIONS (UTILS)
 is_root() {
@@ -84,6 +85,23 @@ dir_truncate() {
 home_tilde() {
     _home_tilde_path=${1:-$(pwd)}
     printf '%s' "$_home_tilde_path" | sed "s|$HOME|~|g"
+}
+
+refresh_cursor_position() {
+    _cursor_position=
+    _tty_settings=$(stty --save)
+
+    stty raw -echo min 0 time 1
+    printf '\e[6n'
+    _cursor_position=$(dd count=1 2> /dev/null)
+    stty "$_tty_settings"
+
+    _cursor_position=${_cursor_position%R*}
+    cursor_position=${_cursor_position##*\[}
+}
+
+current_row() {
+    printf '%s' "${cursor_position%;*}"
 }
 
 # ------------------------------------------------------------------------------
@@ -160,17 +178,20 @@ exit_status() {
     _exit_status_line_feed=
     _exit_status_color=$(dark_color "$FG_GRAY")
 
-    if [ "$_exit_status_code" -ne 0 ]; then
-        _exit_status_value="${_exit_status_color}[exit ${_exit_status_code}]"
-        _exit_status_line_feed="\n\n"
-    else
-        _exit_status_line_feed="\n"
+    if [ "$(current_row)" -gt 1 ]; then
+        if [ "$_exit_status_code" -ne 0 ]; then
+            _exit_status_value="${_exit_status_color}[exit ${_exit_status_code}]"
+            _exit_status_line_feed="\n\n"
+        else
+            _exit_status_line_feed="\n"
+        fi
     fi
 
     printf '%s%s%s' "$_exit_status_value" "$_exit_status_line_feed" "$RESET"
 }
 
 set_prompt() {
+    refresh_cursor_position
     PS1="$(exit_status)$(user)@$(host) $(current_dir)\n$(prompt_symbol) "
 }
 
