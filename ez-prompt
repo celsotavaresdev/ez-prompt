@@ -173,7 +173,7 @@ current_dir() {
 }
 
 exit_status() {
-    _exit_status_code=$?
+    _exit_status_code=$1
     _exit_status_value=
     _exit_status_line_feed=
     _exit_status_color=$(dark_color "$FG_GRAY")
@@ -191,8 +191,9 @@ exit_status() {
 }
 
 set_prompt() {
+    exit_code=$?
     refresh_cursor_position
-    PS1="$(exit_status)$(user)@$(host) $(current_dir)\n$(prompt_symbol) "
+    PS1="$(exit_status $exit_code)$(user)@$(host) $(current_dir)\n$(prompt_symbol) "
 }
 
 # ------------------------------------------------------------------------------
