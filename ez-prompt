@@ -91,7 +91,7 @@ refresh_cursor_position() {
     _cursor_position=
     _tty_settings=$(stty --save)
 
-    stty raw -echo min 0 time 1
+    stty raw -echo min 6
     printf '\e[6n'
     _cursor_position=$(dd count=1 2> /dev/null)
     stty "$_tty_settings"
