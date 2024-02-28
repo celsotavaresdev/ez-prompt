@@ -2,13 +2,13 @@
 
 # ------------------------------------------------------------------------------
 # VARS
-FG_RED='\[\e[31m\]'
-FG_GREEN='\[\e[32m\]'
-FG_YELLOW='\[\e[33m\]'
-FG_PURPLE='\[\e[35m\]'
-FG_GRAY='\[\e[37m\]'
-FG_WHITE='\[\e[97m\]'
-RESET='\[\e[0m\]'
+FG_RED='\[\033[31m\]'
+FG_GREEN='\[\033[32m\]'
+FG_YELLOW='\[\033[33m\]'
+FG_PURPLE='\[\033[35m\]'
+FG_GRAY='\[\033[37m\]'
+FG_WHITE='\[\033[97m\]'
+RESET='\[\033[0m\]'
 DIR_TRUNCATE=3
 DIR_TRUNCATE_PREFIX='.../'
 CONTAINER_ENV_FILE='/run/.containerenv'
@@ -51,7 +51,7 @@ bright_color() {
 find_lscolors() {
     _find_lscolors_string=$1
     _find_lscolors_result=$(dircolors -p | grep -oP "^.?$_find_lscolors_string \K([0-9]|[\;])+")
-    printf '\[\e[%sm\]' "$_find_lscolors_result"
+    printf '\[\033[%sm\]' "$_find_lscolors_result"
 }
 
 dir_truncate() {
@@ -92,7 +92,7 @@ refresh_cursor_position() {
     _tty_settings=$(stty --save)
 
     stty raw -echo min 6
-    printf '\e[6n'
+    printf '\033[6n'
     _cursor_position=$(dd count=1 2> /dev/null)
     stty "$_tty_settings"
 
