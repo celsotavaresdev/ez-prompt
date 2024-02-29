@@ -29,22 +29,22 @@ is_ssh() {
 }
 
 get_container_name() {
-    sed -nr 's/^name="(.*)"$/\1/p' "$CONTAINER_ENV_FILE"
+    sed -nr 's|^name="(.*)"$|\1|p' "$CONTAINER_ENV_FILE"
 }
 
 light_color() {
     _light_color_value=$1
-    printf '%s' "$_light_color_value" | sed 's/\[3/\[9/g'
+    printf '%s' "$_light_color_value" | sed 's|\[3|\[9|g'
 }
 
 dark_color() {
     _dark_color_value=$1
-    printf '%s' "$_dark_color_value" | sed 's/m/;2m/g'
+    printf '%s' "$_dark_color_value" | sed 's|m|;2m|g'
 }
 
 bright_color() {
     _bright_color_value=$1
-    _bright_color_value=$(printf '%s' "$_bright_color_value" | sed 's/m/;1m/g')
+    _bright_color_value=$(printf '%s' "$_bright_color_value" | sed 's|m|;1m|g')
     light_color "$_bright_color_value"
 }
 
@@ -70,7 +70,7 @@ dir_truncate() {
     done
 
     _dir_truncate_partial=${_dir_truncate_path#${_dir_truncate_path%$_dir_truncate_pattern}/}
-    _dir_truncate_slashes_only=$(printf '%s' "$_dir_truncate_path" | sed 's/[^\/]//g')
+    _dir_truncate_slashes_only=$(printf '%s' "$_dir_truncate_path" | sed 's|[^\/]||g')
     _dir_truncate_total_dirs=${#_dir_truncate_slashes_only}
 
     if [ "$_dir_truncate_total_dirs" -gt "$_dir_truncate_value" ] && [ "\~/$_dir_truncate_partial" != "$_dir_truncate_path" ]; then
