@@ -100,7 +100,7 @@ refresh_cursor_position() {
     cursor_position=${_cursor_position##*\[}
 }
 
-current_row() {
+cursor_position_row() {
     printf '%s' "${cursor_position%;*}"
 }
 
@@ -178,7 +178,7 @@ exit_status() {
     _exit_status_line_feed=
     _exit_status_color=$(dark_color "$FG_GRAY")
 
-    if [ "$(current_row)" -gt 1 ]; then
+    if [ "$(cursor_position_row)" -gt 1 ]; then
         if [ "$_exit_status_code" -ne 0 ]; then
             _exit_status_value="${_exit_status_color}[exit ${_exit_status_code}]"
             _exit_status_line_feed="\n\n"
